@@ -1,10 +1,14 @@
-package com.nl.wowapi.boble;
+package com.nl.wowapi.boble.service;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nl.wowapi.boble.model.ZoneRankings;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -40,7 +44,8 @@ public class WarcraftLogsApiService {
     }
 
     /**
-     * Retrieve an access token from Warcraft Logs using the client credentials grant.
+     * Retrieve an access token from Warcraft Logs using the client credentials flow.
+     * This uses a form-encoded POST request, as required by the API.
      *
      * @return the access token as a String.
      */
@@ -49,18 +54,20 @@ public class WarcraftLogsApiService {
             return token;
         }
 
-        // Prepare request body: grant_type=client_credentials
-        Map<String, String> body = new HashMap<>();
-        body.put("grant_type", "client_credentials");
+        // Prepare form data with the required grant_type parameter.
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("grant_type", "client_credentials");
 
-        // Prepare headers with Basic Auth (Base64 encoded "clientId:clientSecret")
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        // Set the content type to application/x-www-form-urlencoded
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        // Prepare Basic Auth with clientId and clientSecret.
         String auth = clientId + ":" + clientSecret;
         String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes());
         headers.set("Authorization", "Basic " + encodedAuth);
 
-        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
 
         try {
             ResponseEntity<JsonNode> response = restTemplate.exchange(tokenUrl, HttpMethod.POST, request, JsonNode.class);
@@ -78,14 +85,17 @@ public class WarcraftLogsApiService {
 
     /**
      * Fetches the best performance average score for a character from the Warcraft Logs API.
+     * The response from the GraphQL query is deserialized into a ZoneRankings POJO,
+     * allowing for easier access to its fields.
      *
      * @param characterName The name of the character.
      * @param serverSlug    The slug of the server (realm) the character is on.
      * @param region        The region (e.g., "eu").
      * @return the best average score as a double.
      */
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public double getBestPerformanceAvg(String characterName, String serverSlug, String region) {
-        // Construct the query without variable declarations or sub-selections for zoneRankings
+        // Construct the GraphQL query without sub-selections for zoneRankings.
         String query = "query CharacterZoneRanking { " +
                 "characterData { " +
                 "  character(name: \"" + characterName + "\", serverSlug: \"" + serverSlug + "\", serverRegion: \"" + region + "\") { " +
@@ -99,30 +109,37 @@ public class WarcraftLogsApiService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        // Use the previously obtained access token.
         headers.set("Authorization", "Bearer " + getWarcraftLogsToken());
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
         try {
+            // Execute the POST request against the GraphQL endpoint.
             ResponseEntity<JsonNode> response = restTemplate.exchange(apiUrl, HttpMethod.POST, entity, JsonNode.class);
             System.out.println("WarcraftLogs Response: " + response.getBody());
 
-            // Navigate to the zoneRankings field
+            // Navigate to the zoneRankings field.
             JsonNode data = response.getBody().path("data");
             JsonNode character = data.path("characterData").path("character");
             JsonNode zoneRankings = character.path("zoneRankings");
 
-            // Since zoneRankings is a JSON scalar, it might be returned as a text value.
-            // If it is textual, we need to parse it as JSON.
-            JsonNode zoneRankingsNode;
+            // If zoneRankings is returned as a JSON string, parse it into a ZoneRankings object.
             if (zoneRankings.isTextual()) {
-                zoneRankingsNode = objectMapper.readTree(zoneRankings.asText());
+                ZoneRankings zoneRankingsObj = objectMapper.readValue(zoneRankings.asText(), ZoneRankings.class);
+                return zoneRankingsObj.getBestPerformanceAverage();
+            } else if (zoneRankings.isObject()) {
+                ZoneRankings zoneRankingsObj = objectMapper.treeToValue(zoneRankings, ZoneRankings.class);
+                return zoneRankingsObj.getBestPerformanceAverage();
+            } else if (zoneRankings.isArray() && zoneRankings.size() == 0) {
+                // No data available—return a default value.
+                return 0.0;
             } else {
-                zoneRankingsNode = zoneRankings;
+                // Unexpected format.
+                throw new RuntimeException("Unexpected format for zoneRankings: " + zoneRankings.toString());
             }
 
-            // Extract the bestPerformanceAverage from the parsed JSON
-            return zoneRankingsNode.path("bestPerformanceAverage").asDouble();
+
         } catch (HttpClientErrorException e) {
             System.err.println("Error fetching Warcraft Logs data: " + e.getStatusCode() +
                     " - " + e.getResponseBodyAsString());
@@ -131,6 +148,4 @@ public class WarcraftLogsApiService {
             throw new RuntimeException("Failed to fetch best performance average score from Warcraft Logs API", e);
         }
     }
-
-
 }

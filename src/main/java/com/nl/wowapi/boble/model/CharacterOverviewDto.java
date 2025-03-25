@@ -1,4 +1,4 @@
-package com.nl.wowapi.boble;
+package com.nl.wowapi.boble.model;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -18,7 +18,7 @@ public class CharacterOverviewDto {
     private String mythicRatingColor;
     private String activeSpec;
     private String role;
-    private double bestPerfAvgScore; // New field for Warcraft Logs data
+    private double bestPerfAvgScore;
 
     public CharacterOverviewDto(String name, String className, String realm,
                                 int equippedItemLevel, String classIcon,

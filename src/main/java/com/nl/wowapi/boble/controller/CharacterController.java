@@ -1,8 +1,9 @@
-package com.nl.wowapi.boble;
+package com.nl.wowapi.boble.controller;
 
-import com.nl.wowapi.boble.BlizzardApiService;
+import com.nl.wowapi.boble.service.BlizzardApiService;
 import org.springframework.web.bind.annotation.*;
 
+// Not really used anymore, but will keep it if we need to do individual lookups later
 @RestController
 @RequestMapping("/api/character")
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173"})
