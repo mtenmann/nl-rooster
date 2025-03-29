@@ -28,7 +28,7 @@ public class WarcraftLogsApiService {
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
 
-    // Inject your client credentials from application.properties
+    // Inject your client credentials from properties
     @Value("${warcraftlogs.client.id}")
     private String clientId;
 

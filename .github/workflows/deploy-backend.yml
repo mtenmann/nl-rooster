@@ -12,7 +12,11 @@ env:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
+    env:
+      BLIZZARD_CLIENT_ID: ${{ secrets.BLIZZARD_CLIENT_ID }}
+      BLIZZARD_CLIENT_SECRET: ${{ secrets.BLIZZARD_CLIENT_SECRET }}
+      WARCRAFTLOGS_CLIENT_ID: ${{ secrets.WARCRAFTLOGS_CLIENT_ID }}
+      WARCRAFTLOGS_CLIENT_SECRET: ${{ secrets.WARCRAFTLOGS_CLIENT_SECRET }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -24,7 +28,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Build Spring Boot app
-        run: mvn clean package -DskipTests
+        run: mvn clean package -DskipTests -Dspring.profiles.active=prod
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
