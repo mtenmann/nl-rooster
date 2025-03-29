@@ -13,6 +13,7 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     env:
+      SPRING_PROFILES_ACTIVE: prod
       BLIZZARD_CLIENT_ID: ${{ secrets.BLIZZARD_CLIENT_ID }}
       BLIZZARD_CLIENT_SECRET: ${{ secrets.BLIZZARD_CLIENT_SECRET }}
       WARCRAFTLOGS_CLIENT_ID: ${{ secrets.WARCRAFTLOGS_CLIENT_ID }}
