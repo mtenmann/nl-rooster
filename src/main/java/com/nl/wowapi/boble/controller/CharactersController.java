@@ -68,6 +68,4 @@ public class CharactersController {
             throw new RuntimeException("Failed to read " + jsonFilePath, e);
         }
     }
-
-    }
 }
