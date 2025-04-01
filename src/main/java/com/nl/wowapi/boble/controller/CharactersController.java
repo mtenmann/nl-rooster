@@ -5,6 +5,7 @@ import com.nl.wowapi.boble.model.CharacterOverviewDto;
 import com.nl.wowapi.boble.service.CharacterOverviewService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -57,14 +58,16 @@ public class CharactersController {
     /**
      * Reads a JSON file from the resources (e.g., "/characters-boble.json") and maps it to a list of CharacterIdentifier.
      */
-    private List<CharacterIdentifier> loadCharacterIdentifiers(String teamPath) {
-        try (InputStream is = getClass().getResourceAsStream(teamPath)) {
-            if (is == null) {
-                throw new RuntimeException(teamPath + " file not found in resources");
+    private List<CharacterIdentifier> loadCharacterIdentifiers(String jsonFilePath) {
+        try {
+            ClassPathResource resource = new ClassPathResource(jsonFilePath.startsWith("/") ? jsonFilePath.substring(1) : jsonFilePath);
+            try (InputStream is = resource.getInputStream()) {
+                return objectMapper.readValue(is, new TypeReference<List<CharacterIdentifier>>() {});
             }
-            return objectMapper.readValue(is, new TypeReference<List<CharacterIdentifier>>() {});
         } catch (IOException e) {
-            throw new RuntimeException("Failed to read " + teamPath, e);
+            throw new RuntimeException("Failed to read " + jsonFilePath, e);
         }
+    }
+
     }
 }
