@@ -6,6 +6,8 @@ import com.nl.wowapi.boble.model.CharacterOverviewDto;
 import com.nl.wowapi.boble.model.ZoneRankings;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 @Service
 public class CharacterOverviewService {
 
@@ -55,11 +57,23 @@ public class CharacterOverviewService {
                 int b = colorNode.path("b").asInt(255);
                 double a = colorNode.path("a").asDouble(1.0);
                 mythicRatingColor = String.format("rgba(%d,%d,%d,%.2f)", r, g, b, a);
+
+                // Kødde med Hodevine - TODO: Ta vekk
+                if ("hodevine".equalsIgnoreCase(characterName)) {
+                    int penalty = ThreadLocalRandom.current().nextInt(50, 301);
+                    mythicRating = Math.max(0, mythicRating - penalty);
+                }
             }
 
             // Retrieve Warcraft Logs data (zone rankings, encounters, etc.)
             ZoneRankings zoneRankings = warcraftLogsClient.getZoneRankings(characterName, realm.toLowerCase(), region);
             double bestPerfAvg = zoneRankings.getBestPerformanceAverage();
+
+            // Kode for å "hjelpe" Hodevine sin score - TODO: Ta vekk
+            if ("hodevine".equalsIgnoreCase(characterName)) {
+                int penalty = ThreadLocalRandom.current().nextInt(5, 20);
+                bestPerfAvg = Math.max(0, bestPerfAvg - penalty);
+            }
 
             // Build and return the merged DTO
             return new CharacterOverviewDto(
