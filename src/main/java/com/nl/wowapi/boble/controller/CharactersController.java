@@ -43,7 +43,8 @@ public class CharactersController {
 
     @GetMapping("/overview")
     public List<CharacterOverviewDto> getAllCharacterOverviews(@RequestParam("team") String team) {
-        List<CharacterIdentifier> characterList = loadCharacterIdentifiers(team);
+        String jsonFile = "characters-" + team.toLowerCase() + ".json";
+        List<CharacterIdentifier> characterList = loadCharacterIdentifiers(jsonFile);
         List<CharacterOverviewDto> result = new ArrayList<>();
         for (CharacterIdentifier id : characterList) {
             try {
