@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/characters")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173"})
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173", "http://nl-rooster-alb-615277410.eu-west-1.elb.amazonaws.com"})
 public class CharactersController {
 
     private final CharacterOverviewService characterOverviewService;
