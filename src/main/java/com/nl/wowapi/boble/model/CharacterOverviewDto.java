@@ -35,4 +35,29 @@ public class CharacterOverviewDto {
         this.role = role;
         this.bestPerfAvgScore = bestPerfAvgScore;
     }
+
+    public String getBlizzardUrl() {
+        return "https://worldofwarcraft.blizzard.com/en-gb/character/eu/"
+                + normalizeRealm(realm) + "/" + normalizeName(name);
+    }
+
+    public String getRaiderIoUrl() {
+        return "https://raider.io/characters/eu/"
+                + normalizeRealm(realm) + "/" + normalizeName(name)
+                + "?season=season-tww-2";
+    }
+
+    public String getWarcraftLogsUrl() {
+        return "https://www.warcraftlogs.com/character/eu/"
+                + normalizeRealm(realm) + "/" + normalizeName(name);
+    }
+
+    // Helper methods to normalize realm and name (for URL compatibility)
+    private String normalizeRealm(String realm) {
+        return realm.toLowerCase().replace(" ", "-");
+    }
+
+    private String normalizeName(String name) {
+        return name.toLowerCase();
+    }
 }
