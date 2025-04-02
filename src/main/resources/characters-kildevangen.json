@@ -1,5 +1,8 @@
 [
   { "name": "Bulldoseren", "realm": "Twisting Nether" },
   { "name": "Solskjold", "realm": "Ravencrest" },
-  { "name": "Slopr", "realm": "Kazzak" }
+  { "name": "Slopr", "realm": "Kazzak" },
+  { "name": "Sondidruid", "realm": "Kazzak" },
+  { "name": "Karmatic", "realm": "Kazzak" },
+  { "name": "Perioden", "realm": "Kazzak" }
 ]

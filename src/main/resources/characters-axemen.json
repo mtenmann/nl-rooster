@@ -1,5 +1,10 @@
 [
   { "name": "Bulldoseren", "realm": "Twisting Nether" },
-  { "name": "Cepheus", "realm": "Ravencrest" },
+  { "name": "Cephias", "realm": "Ravencrest" },
+  { "name": "Yupster", "realm": "Ravencrest" },
+  { "name": "Emrock", "realm": "Grim Batol" },
+  { "name": "Caird", "realm": "Ravencrest" },
+  { "name": "Elerion", "realm": "Ravencrest" },
+  { "name": "Minibussen", "realm": "Kazzak" },
   { "name": "Xarr", "realm": "Ravencrest" }
 ]
